@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6724" systemVersion="14A389" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6711"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view userInteractionEnabled="NO" contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="200" height="200"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" tag="1041" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Trf-Wb-or4">
+                    <rect key="frame" x="84" y="8" width="33" height="21"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" tag="1042" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Detail" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ebm-rp-XX2">
+                    <rect key="frame" x="8" y="37" width="184" height="18"/>
+                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.80000000000000004" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="184" id="rWW-Bh-Pfz"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                    <nil key="highlightedColor"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="6"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                    </userDefinedRuntimeAttributes>
+                </label>
+                <imageView userInteractionEnabled="NO" tag="1043" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" image="MuddDetail.jpeg" translatesAutoresizingMaskIntoConstraints="NO" id="zeg-o9-lNY">
+                    <rect key="frame" x="8" y="78" width="184" height="114"/>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="Ebm-rp-XX2" firstAttribute="top" secondItem="Trf-Wb-or4" secondAttribute="bottom" constant="8" id="69w-MA-1SU"/>
+                <constraint firstItem="zeg-o9-lNY" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Ebm-rp-XX2" secondAttribute="bottom" constant="23" id="Aw7-pE-aVr"/>
+                <constraint firstAttribute="centerX" secondItem="zeg-o9-lNY" secondAttribute="centerX" id="P8C-KI-Bpi"/>
+                <constraint firstAttribute="centerX" secondItem="Ebm-rp-XX2" secondAttribute="centerX" id="VRQ-cd-h4K"/>
+                <constraint firstAttribute="centerX" secondItem="Trf-Wb-or4" secondAttribute="centerX" id="YkY-Iu-cl8"/>
+                <constraint firstItem="zeg-o9-lNY" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="iN0-l3-epB" secondAttribute="leading" constant="8" id="eUb-au-uTk"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="zeg-o9-lNY" secondAttribute="bottom" constant="8" id="qLH-8d-do2"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="zeg-o9-lNY" secondAttribute="trailing" constant="8" id="rTH-sE-dUX"/>
+                <constraint firstItem="Trf-Wb-or4" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="8" id="x5l-uU-CFq"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                    <integer key="value" value="12"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBOunds" value="YES"/>
+            </userDefinedRuntimeAttributes>
+            <point key="canvasLocation" x="180" y="480"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="MuddDetail.jpeg" width="480" height="320"/>
+    </resources>
+</document>
