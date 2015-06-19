@@ -11,9 +11,12 @@
 #import <BaiduMapAPI/BMKMapView.h>
 #import <BaiduMapAPI/BMapKit.h>
 
+#import "MapTest-Swift.h"
+
 #import "UIImage+ResizeImage.h"
 #import "UPStackMenu.h"
 #import "DXPopover.h"
+#import "DeformationButton.h"
 
 #import "MyAnimatedAnnionView.h"
 
@@ -31,7 +34,7 @@ NS_ENUM(NSInteger, LocationType){
 #define MYBUNDLE [NSBundle bundleWithPath:MYBUNDLE_PATH]
 
 
-@interface ViewController ()<BMKMapViewDelegate,BMKLocationServiceDelegate,UPStackMenuDelegate,BMKPoiSearchDelegate,BMKAnnotation>
+@interface ViewController ()<BMKMapViewDelegate,BMKLocationServiceDelegate,UPStackMenuDelegate,BMKPoiSearchDelegate,BMKAnnotation,BMKGeoCodeSearchDelegate>
 
 @property (strong,nonatomic) BMKMapView *mapView;
 
@@ -55,6 +58,9 @@ NS_ENUM(NSInteger, LocationType){
 //Others
 @property (strong,nonatomic) NSMutableArray *arrayConstraints;
 @property (assign,nonatomic) BOOL showOut;
+@property (weak, nonatomic) IBOutlet UILabel *tsetLabel;
+
+
 //坐标
 @property (assign,nonatomic) CLLocationCoordinate2D location2D;
 @property (strong,nonatomic) BMKCircle *overlayCicle;
@@ -105,6 +111,7 @@ NS_ENUM(NSInteger, LocationType){
     self.mapView = [[BMKMapView alloc]initWithFrame:self.view.bounds];
     self.locationService = [[BMKLocationService alloc]init];
     self.poiSearch = [[BMKPoiSearch alloc]init];
+    self.geoSearch = [[BMKGeoCodeSearch alloc]init];
     
     [self.locationService startUserLocationService];
     
@@ -141,7 +148,7 @@ NS_ENUM(NSInteger, LocationType){
     
     UPStackMenuItem *squareItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"square"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"POI搜索功能"];
     UPStackMenuItem *circleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"circle"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"热力图"];
-    UPStackMenuItem *triangleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"triangle"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"泡泡视图"];
+    UPStackMenuItem *triangleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"triangle"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"GEO搜索"];
     UPStackMenuItem *crossItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"cross"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"十字"];
     
     NSMutableArray *muArray = [NSMutableArray arrayWithObjects:squareItem,circleItem,triangleItem,crossItem, nil];
@@ -256,6 +263,35 @@ NS_ENUM(NSInteger, LocationType){
 //        [_mapView addHeatMap:<#(BMKHeatMap *)#>];
     }
     
+    
+    if([item.title isEqualToString:@"GEO搜索"]){
+        UIStoryboard *main = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+        
+        GeocodeViewController *GeoSearchView = [main instantiateViewControllerWithIdentifier:@"GeocodeViewController"];
+        GeoSearchView.view.frame = CGRectMake(0, 0, 200, 150);
+        
+        [self ReverseGeoCodeWithContentView:GeoSearchView];
+        
+        [_popContainerView addSubview:GeoSearchView.view];
+        
+//        UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 200, 150)];
+//        view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+//        view.translatesAutoresizingMaskIntoConstraints = YES;
+//        view.bounds = CGRectMake(0, 0, 200, 150);
+//        view.backgroundColor = [UIColor greenColor];
+        
+        [_popover showAtView:item withContentView:_popContainerView inView:self.view];
+        
+        __weak ViewController *weakSelf = self;
+        _popover.didDismissHandler = ^{
+            [GeoSearchView.view removeFromSuperview];
+            weakSelf.popContainerView.layer.cornerRadius = 0;
+            weakSelf.popContainerView.hidden = YES;
+            [weakSelf.view addSubview:weakSelf.popContainerView];
+            [weakSelf.view addConstraints:weakSelf.arrayConstraints];
+        };
+        
+    }
 }
 
 #pragma mark - MapView Delegate
@@ -265,13 +301,15 @@ NS_ENUM(NSInteger, LocationType){
     _mapView.delegate = self;
     _locationService.delegate = self;
     _poiSearch.delegate = self;
+    _geoSearch.delegate = self;
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
     [_mapView viewWillDisappear];
     _mapView.delegate = nil;
     _locationService.delegate = nil;
-    _poiSearch.delegate = self;
+    _poiSearch.delegate = nil;
+    _geoSearch.delegate = nil;
 }
 
 -(void)mapViewDidFinishLoading:(BMKMapView *)mapView{
@@ -316,11 +354,13 @@ NS_ENUM(NSInteger, LocationType){
         BMKPinAnnotationView *pinAnnotiationView = (BMKPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:_annotationMark];
         if (!pinAnnotiationView) {
             pinAnnotiationView = [[BMKPinAnnotationView alloc]initWithAnnotation:annotation reuseIdentifier:_annotationMark];
+            
             pinAnnotiationView.pinColor = BMKPinAnnotationColorGreen;
             pinAnnotiationView.image = [UIImage imageNamed:@"pin"];
             pinAnnotiationView.animatesDrop = YES;
             
-            
+            }
+        
             UIView *view = [[NSBundle mainBundle]loadNibNamed:@"PinView" owner:nil options:nil][0];
             UILabel *title = (UILabel *)[view viewWithTag:1041];
             UILabel *detail = (UILabel *)[view viewWithTag:1042];
@@ -330,10 +370,11 @@ NS_ENUM(NSInteger, LocationType){
                 detail.text = annotation.subtitle;
                 //arc4random()%x 是选取0-(x-1)的范围
                 imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"1__%d%d.jpg",arc4random()%3,arc4random()%9+1]];
-                
-            }
             
+        
             pinAnnotiationView.paopaoView = [[BMKActionPaopaoView alloc]initWithCustomView:view];
+            
+        
         };
         
         pinAnnotiationView.centerOffset = CGPointMake(0, -(pinAnnotiationView.frame.size.height*.5));
@@ -457,6 +498,70 @@ NS_ENUM(NSInteger, LocationType){
     else if(errorCode == BMK_SEARCH_RESULT_NOT_FOUND){
         _labelTopInfomation.text = @"未发现搜索结果,请点击重新搜索";
         [[NSNotificationCenter defaultCenter] postNotificationName:_indexNumber object:nil];
+    };
+}
+
+#pragma mark - GEOSearch Delegate
+
+-(void)onGetGeoCodeResult:(BMKGeoCodeSearch *)searcher result:(BMKGeoCodeResult *)result errorCode:(BMKSearchErrorCode)error{
+    NSArray *array = [NSArray arrayWithArray:_mapView.annotations];
+    [_mapView removeAnnotations:array];
+    array = [NSArray arrayWithArray:_mapView.overlays];
+    [_mapView removeOverlays:array];
+    
+    if (error == BMK_SEARCH_NO_ERROR) {
+        BMKPointAnnotation* item = [[BMKPointAnnotation alloc]init];
+        item.coordinate = result.location;
+        item.title = result.address;
+        [_mapView addAnnotation:item];
+        _mapView.centerCoordinate = result.location;
+    }
+}
+
+-(void)onGetReverseGeoCodeResult:(BMKGeoCodeSearch *)searcher result:(BMKReverseGeoCodeResult *)result errorCode:(BMKSearchErrorCode)error{
+    NSArray *array = [NSArray arrayWithArray:_mapView.annotations];
+    [_mapView removeAnnotations:array];
+    array = [NSArray arrayWithArray:_mapView.overlays];
+    [_mapView removeOverlays:array];
+    if (error == BMK_SEARCH_NO_ERROR) {
+        BMKPointAnnotation *item = [[BMKPointAnnotation alloc]init];
+        item.coordinate = result.location;
+        item.title = result.address;
+        item.subtitle = [NSString stringWithFormat:@"%@ %@",result.addressDetail.city,result.addressDetail.district];
+        [_mapView addAnnotation:item];
+        _mapView.centerCoordinate = result.location;
+    }
+}
+
+-(void)ReverseGeoCodeWithContentView:(UIViewController *)view{
+    BMKReverseGeoCodeOption *ReversegeoSearchOption = [[BMKReverseGeoCodeOption alloc]init];
+    BMKGeoCodeSearchOption *geoSearchOption = [[BMKGeoCodeSearchOption alloc]init];
+    
+    ((GeocodeViewController *)view).GeoSearchBlock = ^(NSString *first,NSString *second,GeoType type){
+        switch (type) {
+            case ForwardGEOCoding:{
+                geoSearchOption.city = first;
+                geoSearchOption.address = second;
+                
+                if ([_geoSearch geoCode:geoSearchOption]) {
+                    NSLog(@"地址转换坐标成功!");
+                }else{
+                    NSLog(@"地址转换坐标失败!");
+                }
+            }break;
+            case ReverseGEOCoding:{
+                ReversegeoSearchOption.reverseGeoPoint = (CLLocationCoordinate2D){[first floatValue],[second floatValue]};
+                
+                if ([_geoSearch reverseGeoCode:ReversegeoSearchOption]) {
+                    NSLog(@"坐标转换地址成功!");
+                }else{
+                    NSLog(@"坐标转换地址失败!");
+                }
+            }break;
+            default:{
+                NSLog(@"类型错误!@");
+            }break;
+        }
     };
 }
 
@@ -639,6 +744,8 @@ NS_ENUM(NSInteger, LocationType){
     [super prepareForSegue:segue sender:sender];
     
     if ([segue.destinationViewController isKindOfClass:[LittleViewController class]]) {
+        
+        
         ((LittleViewController *)segue.destinationViewController).littleViewSearchBlock = ^(NSString *province,NSString *establish,NSInteger index){
 
             BMKNearbySearchOption *citySearchOption = [[BMKNearbySearchOption alloc]init];
@@ -668,6 +775,8 @@ NS_ENUM(NSInteger, LocationType){
 
 -(void)dealloc{
     _mapView = nil;
+    _poiSearch = nil;
+    _geoSearch = nil;
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 @end
@@ -696,14 +805,122 @@ NS_ENUM(NSInteger, LocationType){
 
 @end
 
+/**
+ *按钮视图容器
+ */
+
+@interface ButtonControlView (){
+    UIColor *_currentWaterColor;
+    float _currentLinePointY;
+    
+    float _a;
+    float _b;
+    
+    BOOL _JIA;
+    
+    NSTimer *_timer;
+}
+
+@end
+
+@implementation ButtonControlView
+
+-(id)initWithCoder:(NSCoder *)aDecoder{
+    if (self = [super initWithCoder:aDecoder]) {
+        [self createAppearence];
+        
+        return self;
+    }
+    return nil;
+}
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    if (self = [super initWithFrame:frame]) {
+        [self createAppearence];
+        
+        return self;
+    }
+    return nil;
+}
+
+
+-(void)createAppearence{
+    _a = 1.5;
+    _b = 0;
+    _JIA = NO;
+    
+    _currentWaterColor = [UIColor colorWithRed:0.373 green:0.869 blue:1.000 alpha:1.000];
+    _currentLinePointY = self.bounds.size.height;
+    
+}
+
+-(void)animateWave{
+    if (_JIA) {
+        _a += 0.01;
+    }else{
+        _a -= 0.01;
+    }
+    
+    if (_a <= 1) {
+        _JIA = YES;
+    }
+    
+    if (_a >= 1.5) {
+        _JIA = NO;
+    }
+    
+    _b += 0.1;
+    _currentLinePointY -= 0.5;
+    
+    [self setNeedsDisplay];
+}
+
+-(void)startAnnimationWithBool:(BOOL)bo{
+    if (bo) {
+        _timer = [NSTimer scheduledTimerWithTimeInterval:0.02 target:self selector:@selector(animateWave) userInfo:nil repeats:YES];
+    }else{
+        [_timer invalidate];
+        _currentLinePointY = self.bounds.size.height;
+        _timer = nil;
+    }
+}
+
+-(void)drawRect:(CGRect)rect{
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGMutablePathRef path = CGPathCreateMutable();
+    
+    CGContextSetLineWidth(context, 1);
+    
+    CGContextSetFillColorWithColor(context, [_currentWaterColor CGColor]);
+
+    float y = _currentLinePointY;
+    
+    CGPathMoveToPoint(path, NULL, 0, -y);
+    
+    for (float x= 0; x<320; x++) {
+        y = _a * sin(x/180*M_PI + 4*_b/M_PI) *5 + _currentLinePointY;
+        CGPathAddLineToPoint(path, nil, x, y);
+    }
+    
+    CGPathAddLineToPoint(path, nil, 320, rect.size.height);
+    CGPathAddLineToPoint(path, nil, 0, rect.size.height);
+    CGPathAddLineToPoint(path, nil, 0, _currentLinePointY);
+    CGContextAddPath(context, path);
+    CGContextFillPath(context);
+    CGContextDrawPath(context, kCGPathStroke);
+    CGPathRelease(path);
+}
+
+@end
 
 /**
- *  Little View
+ *  First - Little View POISearch
  */
 @interface LittleViewController ()
 
 @property (weak, nonatomic) IBOutlet UITextField *textfieldProvince;
 @property (weak, nonatomic) IBOutlet UITextField *textfieldEstablishment;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *rty;
 
 @end
 
@@ -714,6 +931,20 @@ NS_ENUM(NSInteger, LocationType){
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(recurrenceIndexToZero:) name:_indexNumber object:nil];
     
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    if (!self.view.superview.hidden) {
+        [(ButtonControlView *)self.view startAnnimationWithBool:YES];
+    }
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    
+    [(ButtonControlView *)self.view startAnnimationWithBool:NO];
 }
 
 - (IBAction)actionSearchClick:(id)sender {
@@ -736,8 +967,99 @@ NS_ENUM(NSInteger, LocationType){
 
 @end
 
+/**
+ *  Second - Geocode ViewController
+ */
+
+
+@interface GeocodeViewController ()
+
+@property (weak, nonatomic) IBOutlet UILabel *labelFirst;
+@property (weak, nonatomic) IBOutlet UILabel *labelSecond;
+@property (weak, nonatomic) IBOutlet UITextField *textFieldFirst;
+@property (weak, nonatomic) IBOutlet UITextField *textFieldSecond;
+
+@property (weak, nonatomic) IBOutlet UIButton *buttonExchangeMode;
+@property (weak, nonatomic) IBOutlet UIButton *buttonSubmit;
+
+@property (strong,nonatomic) NSTimer *timer;
+@end
+
+@implementation GeocodeViewController
+
+-(void)viewDidLoad{
+    [super viewDidLoad];
+}
+
+- (IBAction)actionButtonExchangeMode:(id)sender {
+    switch (self.geoType) {
+        case ForwardGEOCoding:
+            _labelFirst.text = @"经度:";
+            _labelSecond.text = @"纬度:";
+            
+            _textFieldFirst.text = @"39.915";
+            _textFieldSecond.text = @"116.403";
+            
+            [_buttonExchangeMode setTitle:@"经纬度转地址:" forState:UIControlStateNormal];
+            
+            
+            
+            _geoType = ReverseGEOCoding;
+            break;
+        case ReverseGEOCoding:
+            _labelFirst.text = @"省份:";
+            _labelSecond.text = @"地址:";
+            
+            _textFieldFirst.text = @"上海";
+            _textFieldSecond.text = @"历史博物馆";
+            
+            [_buttonExchangeMode setTitle:@"地址转经纬度:" forState:UIControlStateNormal];
+            
+            _geoType = ForwardGEOCoding;
+            break;
+        default:
+            break;
+    }
+}
+
+
+- (IBAction)actionButtonSubmit:(id)sender {
+    if (_textFieldFirst.text.length && _textFieldSecond.text.length) {
+        self.GeoSearchBlock(_textFieldFirst.text,_textFieldSecond.text,_geoType);
+    }else{
+        UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"警告" message:@"文本框均不能为空!" preferredStyle:UIAlertControllerStyleAlert];
+        [controller addAction:[UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [_textFieldFirst becomeFirstResponder];
+        }]];
+    }
+}
+
+-(void)dealloc{
+    
+}
+
+@end
+
+
+/**
+ *  third viewcontroller - Offline
+ */
+
+@interface OfflineMapViewController ()
+
+@end
+
+@implementation OfflineMapViewController
+
+-(void)viewDidLoad{
+    [super viewDidLoad];
+}
 
 
 
+-(void)dealloc{
+    
+}
 
+@end
 

@@ -151,7 +151,7 @@
     self.contentView.layer.masksToBounds = YES;
     self.popoverPosition = position;
     self.arrowShowPoint = point;
-    self.contentViewFrame = [contentView.superview convertRect:contentView.frame toView:containerView];
+    self.contentViewFrame = contentView.superview ?  [contentView.superview convertRect:contentView.frame toView:containerView] : [containerView convertRect:contentView.frame toView:containerView];
     
     [self show];
 }
@@ -227,11 +227,15 @@
     }
     
     self.contentView.frame = contentViewFrame;
+    BOOL flag = !![_contentView superview];
+    
     [self addSubview:self.contentView];
+//    self.translatesAutoresizingMaskIntoConstraints = YES;
     
-    
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1 constant:0]];
+    if (flag) {
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.contentView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1 constant:0]];
+    }
     
     [self.containerView addSubview:self];
     

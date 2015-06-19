@@ -21,3 +21,9 @@
 -(NSMutableArray *)convertUIColorToRGBA;
 
 @end
+
+@interface OptionPublic : NSObject
+
+-(NSString *)getDataSizeString:(int)nSize;
+
+@end

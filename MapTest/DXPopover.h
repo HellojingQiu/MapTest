@@ -79,7 +79,7 @@ typedef NS_ENUM(NSUInteger, DXPopoverMaskType) {
  */
 @property (nonatomic, copy) dispatch_block_t didShowHandler;
 
-/**
+/**+
  *  The callback when popover did dismiss in the containerView;
  */
 @property (nonatomic, copy) dispatch_block_t didDismissHandler;
