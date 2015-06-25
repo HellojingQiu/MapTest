@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		D901AC971B340B0000E2502F /* DeformationButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D901AC931B340B0000E2502F /* DeformationButton.m */; };
 		D901AC981B340B0000E2502F /* MMMaterialDesignSpinner.m in Sources */ = {isa = PBXBuildFile; fileRef = D901AC961B340B0000E2502F /* MMMaterialDesignSpinner.m */; };
+		D953A7FF1B392E050035C2E8 /* CityListViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D953A7FE1B392E050035C2E8 /* CityListViewCell.xib */; };
+		D953A8021B39498D0035C2E8 /* CityListViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D953A8011B39498D0035C2E8 /* CityListViewCell.m */; };
+		D953A83D1B3A8F610035C2E8 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = D953A83C1B3A8F610035C2E8 /* art.scnassets */; };
+		D953A8401B3A8F8B0035C2E8 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D953A83F1B3A8F8B0035C2E8 /* GameViewController.m */; };
+		D953A8421B3A93E30035C2E8 /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D953A8411B3A93E30035C2E8 /* SceneKit.framework */; };
 		D9543D861B342C24000A135D /* KYCircularProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9543D851B342C24000A135D /* KYCircularProgress.swift */; };
 		D9772AB21B31426A00F1D176 /* PinView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D9772AB11B31426A00F1D176 /* PinView.xib */; };
 		D9772AB71B31569300F1D176 /* MuddDetail.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = D9772AB51B31569300F1D176 /* MuddDetail.jpeg */; };
@@ -95,6 +100,13 @@
 		D901AC931B340B0000E2502F /* DeformationButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeformationButton.m; sourceTree = "<group>"; };
 		D901AC951B340B0000E2502F /* MMMaterialDesignSpinner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMaterialDesignSpinner.h; sourceTree = "<group>"; };
 		D901AC961B340B0000E2502F /* MMMaterialDesignSpinner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMMaterialDesignSpinner.m; sourceTree = "<group>"; };
+		D953A7FE1B392E050035C2E8 /* CityListViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CityListViewCell.xib; sourceTree = "<group>"; };
+		D953A8001B39498D0035C2E8 /* CityListViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CityListViewCell.h; sourceTree = "<group>"; };
+		D953A8011B39498D0035C2E8 /* CityListViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CityListViewCell.m; sourceTree = "<group>"; };
+		D953A83C1B3A8F610035C2E8 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
+		D953A83E1B3A8F8B0035C2E8 /* GameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
+		D953A83F1B3A8F8B0035C2E8 /* GameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
+		D953A8411B3A93E30035C2E8 /* SceneKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SceneKit.framework; path = System/Library/Frameworks/SceneKit.framework; sourceTree = SDKROOT; };
 		D9543D841B342C24000A135D /* MapTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MapTest-Bridging-Header.h"; sourceTree = "<group>"; };
 		D9543D851B342C24000A135D /* KYCircularProgress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCircularProgress.swift; sourceTree = "<group>"; };
 		D9772AB11B31426A00F1D176 /* PinView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PinView.xib; sourceTree = "<group>"; };
@@ -187,6 +199,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D953A8421B3A93E30035C2E8 /* SceneKit.framework in Frameworks */,
 				D9BDA46B1B2162C30005233D /* Security.framework in Frameworks */,
 				D9BDA4691B2162BC0005233D /* CoreGraphics.framework in Frameworks */,
 				D9BDA4671B2162B40005233D /* OpenGLES.framework in Frameworks */,
@@ -229,6 +242,7 @@
 		D9772AB41B31569300F1D176 /* Image */ = {
 			isa = PBXGroup;
 			children = (
+				D953A83C1B3A8F610035C2E8 /* art.scnassets */,
 				D9772AB91B315BFC00F1D176 /* 1__26.jpg */,
 				D9772ABA1B315BFC00F1D176 /* 1__27.jpg */,
 				D9772AB51B31569300F1D176 /* MuddDetail.jpeg */,
@@ -318,6 +332,7 @@
 		D9BDA42B1B2160F70005233D = {
 			isa = PBXGroup;
 			children = (
+				D953A8411B3A93E30035C2E8 /* SceneKit.framework */,
 				D9BDA4361B2160F70005233D /* MapTest */,
 				D9BDA4501B2160F70005233D /* MapTestTests */,
 				D9BDA4351B2160F70005233D /* Products */,
@@ -346,6 +361,11 @@
 				D9BDA43E1B2160F70005233D /* ViewController.h */,
 				D9BDA43F1B2160F70005233D /* ViewController.m */,
 				D9772AB11B31426A00F1D176 /* PinView.xib */,
+				D953A7FE1B392E050035C2E8 /* CityListViewCell.xib */,
+				D953A8001B39498D0035C2E8 /* CityListViewCell.h */,
+				D953A8011B39498D0035C2E8 /* CityListViewCell.m */,
+				D953A83E1B3A8F8B0035C2E8 /* GameViewController.h */,
+				D953A83F1B3A8F8B0035C2E8 /* GameViewController.m */,
 				D9DEB3F41B267B5E00A97CB6 /* MyAnimatedAnnionView.h */,
 				D9DEB3F51B267B5E00A97CB6 /* MyAnimatedAnnionView.m */,
 				D9F701CA1B2A97AF00CED55B /* DXPopover.h */,
@@ -503,6 +523,7 @@
 				D9BDA46F1B2163200005233D /* mapapi.bundle in Resources */,
 				D9772AE21B315ED600F1D176 /* 1__14.jpg in Resources */,
 				D9772ADE1B315ED600F1D176 /* 1__10.jpg in Resources */,
+				D953A83D1B3A8F610035C2E8 /* art.scnassets in Resources */,
 				D9772ADB1B315ED600F1D176 /* 1__07.jpg in Resources */,
 				D99310811B26CD33004573FD /* world-continents-low.svg in Resources */,
 				D99310801B26CD33004573FD /* usa-low.svg in Resources */,
@@ -529,6 +550,7 @@
 				D9772ADF1B315ED600F1D176 /* 1__11.jpg in Resources */,
 				D9772AE11B315ED600F1D176 /* 1__13.jpg in Resources */,
 				D99310771B26CD33004573FD /* austria-low.svg in Resources */,
+				D953A7FF1B392E050035C2E8 /* CityListViewCell.xib in Resources */,
 				D993105F1B26CBD1004573FD /* chinaHigh.svg in Resources */,
 				D993107B1B26CD33004573FD /* france-low.svg in Resources */,
 				D9772ADA1B315ED600F1D176 /* 1__06.jpg in Resources */,
@@ -559,11 +581,13 @@
 				D993108C1B26CDB0004573FD /* UPStackMenu.m in Sources */,
 				D9F701CC1B2A97AF00CED55B /* DXPopover.m in Sources */,
 				D9BDA4401B2160F70005233D /* ViewController.m in Sources */,
+				D953A8401B3A8F8B0035C2E8 /* GameViewController.m in Sources */,
 				D993108D1B26CDB0004573FD /* UPStackMenuItem.m in Sources */,
 				D9C209FB1B257FDB008AECA8 /* UIImage+ResizeImage.m in Sources */,
 				D99310851B26CD33004573FD /* FSSVGPathElement.m in Sources */,
 				D901AC981B340B0000E2502F /* MMMaterialDesignSpinner.m in Sources */,
 				D901AC971B340B0000E2502F /* DeformationButton.m in Sources */,
+				D953A8021B39498D0035C2E8 /* CityListViewCell.m in Sources */,
 				D9BDA43D1B2160F70005233D /* AppDelegate.mm in Sources */,
 				D9BDA43A1B2160F70005233D /* main.m in Sources */,
 			);

@@ -14,7 +14,7 @@
 
 @implementation OptionPublic
 
--(NSString *)getDataSizeString:(int)nSize{
++(NSString *)getDataSizeString:(int)nSize{
     NSString *string = nil;
     if (nSize<1024)
     {

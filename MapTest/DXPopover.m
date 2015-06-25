@@ -88,7 +88,7 @@
             frame.origin.x += abs(CGRectGetMinX(frame))+sideEdge;
         }
     }
-    
+      
     
     self.frame = frame;
 
@@ -284,6 +284,14 @@
 
 - (void)drawRect:(CGRect)rect
 {
+    if (_contentView) {
+        if (_contentView.frame.origin.y) {
+            CGRect frame = _contentView.frame;
+            frame.origin = CGPointZero;
+            _contentView.frame = frame;
+        }
+    }
+    
     UIBezierPath *arrow = [[UIBezierPath alloc] init];
     UIColor *contentColor = self.contentView.backgroundColor ? : [UIColor whiteColor];
     //the point in the ourself view coordinator

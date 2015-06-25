@@ -24,6 +24,6 @@
 
 @interface OptionPublic : NSObject
 
--(NSString *)getDataSizeString:(int)nSize;
++(NSString *)getDataSizeString:(int)nSize;
 
 @end

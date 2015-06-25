@@ -48,7 +48,17 @@ typedef NS_ENUM(NSUInteger, GeoType) {
 @end
 
 //third viewcontroller - Offline
-
+@protocol OfflineMapViewDelegate;
 @interface OfflineMapViewController : UIViewController
+
+@property (assign,nonatomic) id<OfflineMapViewDelegate> delegate;
+@property (strong,nonatomic) ViewController *controller;
+
+@end
+
+@protocol CityListDelegate;
+@interface CityListViewConttoller : UIViewController
+
+@property (assign,nonatomic) id<CityListDelegate> delegate;
 
 @end

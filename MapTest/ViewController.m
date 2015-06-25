@@ -1,4 +1,4 @@
-//
+ //
 //  ViewController.m
 //  MapTest
 //
@@ -10,6 +10,9 @@
 
 #import <BaiduMapAPI/BMKMapView.h>
 #import <BaiduMapAPI/BMapKit.h>
+
+#import "CityListViewCell.h"
+#import "GameViewController.h"
 
 #import "MapTest-Swift.h"
 
@@ -33,14 +36,16 @@ NS_ENUM(NSInteger, LocationType){
 #define MYBUNDLE_PATH [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:MYBUNDLE_NAME]
 #define MYBUNDLE [NSBundle bundleWithPath:MYBUNDLE_PATH]
 
-
-@interface ViewController ()<BMKMapViewDelegate,BMKLocationServiceDelegate,UPStackMenuDelegate,BMKPoiSearchDelegate,BMKAnnotation,BMKGeoCodeSearchDelegate>
+@protocol OfflineMapViewDelegate;
+@protocol CityListDelegate;
+@interface ViewController ()<BMKMapViewDelegate,BMKLocationServiceDelegate,UPStackMenuDelegate,BMKPoiSearchDelegate,BMKAnnotation,BMKGeoCodeSearchDelegate,BMKOfflineMapDelegate,OfflineMapViewDelegate,CityListDelegate>
 
 @property (strong,nonatomic) BMKMapView *mapView;
 
 @property (strong,nonatomic) BMKLocationService *locationService;
 @property (strong,nonatomic) BMKGeoCodeSearch *geoSearch;
 @property (strong,nonatomic) BMKPoiSearch *poiSearch;
+@property (strong,nonatomic) BMKOfflineMap *offlineMap;
 
 @property (assign,nonatomic) enum LocationType locatonType;
 
@@ -112,6 +117,7 @@ NS_ENUM(NSInteger, LocationType){
     self.locationService = [[BMKLocationService alloc]init];
     self.poiSearch = [[BMKPoiSearch alloc]init];
     self.geoSearch = [[BMKGeoCodeSearch alloc]init];
+    self.offlineMap = [[BMKOfflineMap alloc]init];
     
     [self.locationService startUserLocationService];
     
@@ -147,9 +153,9 @@ NS_ENUM(NSInteger, LocationType){
 //    _stackMenu.center = CGPointMake(self.view.bounds.size.width/2, self.view.bounds.size.height-30);
     
     UPStackMenuItem *squareItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"square"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"POI搜索功能"];
-    UPStackMenuItem *circleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"circle"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"热力图"];
+    UPStackMenuItem *circleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"circle"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"离线地图"];
     UPStackMenuItem *triangleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"triangle"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"GEO搜索"];
-    UPStackMenuItem *crossItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"cross"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"十字"];
+    UPStackMenuItem *crossItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"cross"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"DAE建模"];
     
     NSMutableArray *muArray = [NSMutableArray arrayWithObjects:squareItem,circleItem,triangleItem,crossItem, nil];
     [muArray enumerateObjectsUsingBlock:^(UPStackMenuItem *obj, NSUInteger idx, BOOL *stop) {
@@ -259,8 +265,25 @@ NS_ENUM(NSInteger, LocationType){
         return;
     }
     
-    if ([item.title isEqualToString:@"热力图"]) {
-//        [_mapView addHeatMap:<#(BMKHeatMap *)#>];
+    if ([item.title isEqualToString:@"离线地图"]) {
+        UIStoryboard *main = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+        OfflineMapViewController *offlineMapViewController = [main instantiateViewControllerWithIdentifier:@"OfflineMapViewController"];
+        offlineMapViewController.view.frame = CGRectMake(0, 0, 200, 150);
+        offlineMapViewController.delegate = self;
+        offlineMapViewController.controller = self;
+        
+        [_popContainerView addSubview:offlineMapViewController.view];
+        
+        [_popover showAtView:item withContentView:_popContainerView inView:self.view];
+        
+        __weak ViewController *weakSelf = self;
+        _popover.didDismissHandler = ^{
+            [offlineMapViewController.view removeFromSuperview];
+            weakSelf.popContainerView.layer.cornerRadius = 0;
+            weakSelf.popContainerView.hidden = YES;
+            [weakSelf.view addSubview:weakSelf.popContainerView];
+            [weakSelf.view addConstraints:weakSelf.arrayConstraints];
+        };
     }
     
     
@@ -292,6 +315,82 @@ NS_ENUM(NSInteger, LocationType){
         };
         
     }
+    
+    if([item.title isEqualToString:@"DAE建模"]){
+        UIStoryboard *main = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+        GameViewController *gameViewController = [main instantiateViewControllerWithIdentifier:@"GameViewController"];
+        gameViewController.view.frame = CGRectMake(0, 0, 200, 150);
+        
+        [_popContainerView addSubview:gameViewController.view];
+        
+        [_popover showAtView:item withContentView:_popContainerView inView:self.view];
+        
+        __weak ViewController *weakSelf = self;
+        _popover.didDismissHandler = ^{
+            [gameViewController.view removeFromSuperview];
+            weakSelf.popContainerView.layer.cornerRadius = 0;
+            weakSelf.popContainerView.hidden = YES;
+            [weakSelf.view addSubview:weakSelf.popContainerView];
+            [weakSelf.view addConstraints:weakSelf.arrayConstraints];
+        };
+    }
+}
+
+#pragma mark - OffLineMap Delegate
+
+-(int)SearchCityWithName:(NSString *)name{
+    NSArray *arrayCity = [_offlineMap searchCity:name];
+    if (arrayCity.count) {
+        BMKOLSearchRecord *oneCity = arrayCity[0];
+        
+        NSLog(@"name:%@,size:%@,cityID:%d,Type:%d,ChildCity:%@",oneCity.cityName,[OptionPublic getDataSizeString:oneCity.size],oneCity.cityID,oneCity.cityType,oneCity.childCities);
+        
+        return oneCity.cityID;
+    }
+    
+    return 0;
+}
+
+-(BOOL)StartDownloadWithCityId:(int)cityId{
+    return [_offlineMap start:cityId];
+}
+
+-(BOOL)StopDownloadWithCityId:(int)cityId{
+    return [_offlineMap pause:cityId];
+}
+
+
+-(void)onGetOfflineMapState:(int)type withState:(int)state{
+    switch (type) {
+        case TYPE_OFFLINE_UPDATE:{//state号城市正在下载或更新
+            BMKOLUpdateElement *updateInfo = [_offlineMap getUpdateInfo:state];
+        }break;
+        case TYPE_OFFLINE_NEWVER:{
+            BMKOLUpdateElement *updateInfo = [_offlineMap getUpdateInfo:state];
+            if (updateInfo.update) {
+                [_offlineMap update:updateInfo.cityID];
+            }
+        }break;
+        case TYPE_OFFLINE_UNZIP:{
+            NSLog(@"正在导入离线包");
+        }break;
+        case TYPE_OFFLINE_ZIPCNT:{
+            NSLog(@"检测到%d个离线包",state);
+        }break;
+        case TYPE_OFFLINE_ERRZIP:{
+            NSLog(@"有%d个离线包导入错误",state);
+        }break;
+        case TYPE_OFFLINE_UNZIPFINISH:{
+            NSLog(@"成功导入%d个离线包",state);
+        }break;
+        default:
+            break;
+    }
+}
+#pragma mark - OfflineMap CityListView Delegate
+
+-(NSArray *)getCityList{
+    return [NSArray arrayWithObjects:[_offlineMap getHotCityList],[_offlineMap getOfflineCityList], nil];
 }
 
 #pragma mark - MapView Delegate
@@ -302,6 +401,7 @@ NS_ENUM(NSInteger, LocationType){
     _locationService.delegate = self;
     _poiSearch.delegate = self;
     _geoSearch.delegate = self;
+    _offlineMap.delegate = self;
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
@@ -310,6 +410,7 @@ NS_ENUM(NSInteger, LocationType){
     _locationService.delegate = nil;
     _poiSearch.delegate = nil;
     _geoSearch.delegate = nil;
+    _offlineMap.delegate = nil;
 }
 
 -(void)mapViewDidFinishLoading:(BMKMapView *)mapView{
@@ -1044,8 +1145,33 @@ NS_ENUM(NSInteger, LocationType){
 /**
  *  third viewcontroller - Offline
  */
-
+@protocol OfflineMapViewDelegate;
+@protocol CityListDelegate;
 @interface OfflineMapViewController ()
+
+@property (weak, nonatomic) IBOutlet UITextField *textfiledCity;
+//Procress View
+@property (weak, nonatomic) IBOutlet UIView *procressView;
+@property (weak, nonatomic) IBOutlet UIProgressView *processBar;
+@property (weak, nonatomic) IBOutlet UILabel *labelPercent;
+
+@property (weak, nonatomic) IBOutlet UIButton *buttonStart;
+@property (weak, nonatomic) IBOutlet UIButton *buttonStop;
+@property (weak, nonatomic) IBOutlet UIButton *buttonDelete;
+
+@property (assign,nonatomic) int intResult;
+@end
+
+@protocol OfflineMapViewDelegate <NSObject>
+@required
+//根据城市名称搜索
+-(int)SearchCityWithName:(NSString *)name;
+//开始下载
+-(BOOL)StartDownloadWithCityId:(int)cityId;
+//停止下载
+-(BOOL)StopDownloadWithCityId:(int)cityId;
+//删除离线包
+-(BOOL)DeleteDownLoadWithCityId:(int)cityId;
 
 @end
 
@@ -1055,7 +1181,28 @@ NS_ENUM(NSInteger, LocationType){
     [super viewDidLoad];
 }
 
+- (IBAction)actionButtonSearch:(UIButton *)sender {
+    if ([_delegate respondsToSelector:@selector(SearchCityWithName:)]) {
+        if (_textfiledCity.text.length) {
+            int SearchResult = [self.delegate SearchCityWithName:_textfiledCity.text];
+            
+            self.intResult = SearchResult;
+            _buttonStart.enabled = SearchResult;
+            
+            NSLog(@"SearchResult:%@", _intResult ? @"搜索成功!" : @"搜索失败!");
+        }else NSLog(@"请输入城市名!");
+    }
+}
 
+- (IBAction)actionButtonChickCityList:(UIButton *)sender {
+    UIStoryboard *main = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    CityListViewConttoller *cityListController = [main instantiateViewControllerWithIdentifier:@"CityListViewConttoller"];
+    cityListController.view.frame = CGRectMake(0, 0, 200, 150);
+    cityListController.delegate = _controller;
+    
+    [self.view addSubview:cityListController.view];
+    
+}
 
 -(void)dealloc{
     
@@ -1063,3 +1210,112 @@ NS_ENUM(NSInteger, LocationType){
 
 @end
 
+/**
+ *  CityListCViewController
+ */
+@protocol CityListDelegate <NSObject>
+
+-(NSArray *)getCityList;
+//移除某一对象
+-(BOOL)removeItemWithCityId:(int)cityId;
+@end
+
+@interface CityListViewConttoller ()<UITableViewDelegate,UITableViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UISegmentedControl *cityListSegmentedControl;
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+
+@property (strong,nonatomic) NSMutableArray *arrayData;
+
+@end
+
+@implementation CityListViewConttoller
+
+-(void)viewDidLoad{
+    [super viewDidLoad];
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self reloadData];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+}
+
+- (IBAction)actionSegment:(id)sender {
+    
+}
+
+-(void)reloadData{
+    NSArray *array = [_delegate getCityList];
+    if (array) {
+        NSMutableArray *arrayHotCity = [NSMutableArray arrayWithArray:array[0]];
+        NSMutableArray *arrayCityList = [NSMutableArray arrayWithArray:array[1]];
+        
+        _arrayData = [NSMutableArray arrayWithObjects:arrayHotCity,arrayCityList, nil];
+    }
+    
+}
+
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    [self.view removeFromSuperview];
+}
+
+#pragma mark - TableView Delegate
+
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return _arrayData.count;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return [(NSArray *)_arrayData[section] count];
+}
+
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        BMKOLUpdateElement *item = _arrayData[indexPath.section][indexPath.row];
+        if ([_delegate respondsToSelector:@selector(removeItemWithCityId:)]) {
+            [_tableView beginUpdates];
+            
+            BOOL result = [_delegate removeItemWithCityId:item.cityID];
+            if (result) {
+                [_arrayData[indexPath.section] removeObjectAtIndex:indexPath.row];
+                [_tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            }
+            
+            [_tableView endUpdates];
+        };
+    }
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSString *cellStr = @"Cell";
+    CityListViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellStr];
+    if (!cell) {
+        
+        cell = [[NSBundle mainBundle]loadNibNamed:@"CityListViewCell" owner:nil options:nil][0];
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
+    if ([cell isKindOfClass:[CityListViewCell class]]) {
+        ((CityListViewCell *)cell).labelCity.text = ((BMKOLSearchRecord *)_arrayData[indexPath.section][indexPath.row]).cityName;
+        ((CityListViewCell *)cell).labelId.text = [NSString stringWithFormat:@"%d",((BMKOLSearchRecord *)_arrayData[indexPath.section][indexPath.row]).cityID];
+        
+    }
+}
+
+-(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
+    return section == 0 ? @"热门城市" : @"城市列表";
+}
+
+-(void)dealloc{
+    
+}
+
+@end
