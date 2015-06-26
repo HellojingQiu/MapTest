@@ -92,6 +92,15 @@
     return string;
 }
 
+
++(NSString *)getFilepathWithName:(NSString *)filename WithBundlePath:(NSString *)bundlepath{
+    NSBundle *bundle = [NSBundle bundleWithPath:bundlepath];
+    if (bundle && filename) {
+        NSString *str= [ [bundle resourcePath] stringByAppendingPathComponent:filename];
+        return str;
+    }
+    return nil;
+}
 @end
 
 
@@ -137,6 +146,10 @@
     return newImage;
 }
 
+-(UIImage *)imageRotatedByDegrees:(CGFloat)degrees{
+//    CGFloat width = CGImageGetWidth(<#CGImageRef image#>);
+    return nil;
+}
 @end
 
 @implementation UIColor (ConvertToRGBA)

@@ -36,9 +36,10 @@ NS_ENUM(NSInteger, LocationType){
 #define MYBUNDLE_PATH [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:MYBUNDLE_NAME]
 #define MYBUNDLE [NSBundle bundleWithPath:MYBUNDLE_PATH]
 
+
 @protocol OfflineMapViewDelegate;
 @protocol CityListDelegate;
-@interface ViewController ()<BMKMapViewDelegate,BMKLocationServiceDelegate,UPStackMenuDelegate,BMKPoiSearchDelegate,BMKAnnotation,BMKGeoCodeSearchDelegate,BMKOfflineMapDelegate,OfflineMapViewDelegate,CityListDelegate>
+@interface ViewController ()<BMKMapViewDelegate,BMKLocationServiceDelegate,UPStackMenuDelegate,BMKPoiSearchDelegate,BMKAnnotation,BMKGeoCodeSearchDelegate,BMKOfflineMapDelegate,OfflineMapViewDelegate,CityListDelegate,BMKRouteSearchDelegate>
 
 @property (strong,nonatomic) BMKMapView *mapView;
 
@@ -46,6 +47,7 @@ NS_ENUM(NSInteger, LocationType){
 @property (strong,nonatomic) BMKGeoCodeSearch *geoSearch;
 @property (strong,nonatomic) BMKPoiSearch *poiSearch;
 @property (strong,nonatomic) BMKOfflineMap *offlineMap;
+@property (strong,nonatomic) BMKRouteSearch *routeSearch;
 
 @property (assign,nonatomic) enum LocationType locatonType;
 
@@ -57,7 +59,6 @@ NS_ENUM(NSInteger, LocationType){
 @property (weak, nonatomic) IBOutlet UIView *upStackMenu;
 @property (strong,nonatomic) UPStackMenu *stackMenu;
 @property (strong,nonatomic) DXPopover *popover;
-
 
 
 //Others
@@ -75,6 +76,7 @@ NS_ENUM(NSInteger, LocationType){
 @property (strong,nonatomic) BMKGroundOverlay *overlayGround;
 @property (strong,nonatomic) BMKPointAnnotation *overlayPointAnnotation;
 @end
+
 
 @implementation ViewController
 
@@ -118,6 +120,7 @@ NS_ENUM(NSInteger, LocationType){
     self.poiSearch = [[BMKPoiSearch alloc]init];
     self.geoSearch = [[BMKGeoCodeSearch alloc]init];
     self.offlineMap = [[BMKOfflineMap alloc]init];
+    self.routeSearch = [[BMKRouteSearch alloc]init];
     
     [self.locationService startUserLocationService];
     
@@ -153,11 +156,12 @@ NS_ENUM(NSInteger, LocationType){
 //    _stackMenu.center = CGPointMake(self.view.bounds.size.width/2, self.view.bounds.size.height-30);
     
     UPStackMenuItem *squareItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"square"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"POI搜索功能"];
-    UPStackMenuItem *circleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"circle"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"离线地图"];
+    UPStackMenuItem *circleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"circle"] imageWithColor:[UIColor greenColor]] highlightedImage:nil title:@"离线地图"];
     UPStackMenuItem *triangleItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"triangle"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"GEO搜索"];
-    UPStackMenuItem *crossItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"cross"] imageWithColor:[UIColor blueColor]] highlightedImage:nil title:@"DAE建模"];
+    UPStackMenuItem *crossItem = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"cross"] imageWithColor:[UIColor purpleColor]] highlightedImage:nil title:@"DAE建模"];
+    UPStackMenuItem *routeSearch = [[UPStackMenuItem alloc]initWithImage:[[UIImage imageNamed:@"circle"] imageWithColor:[UIColor redColor]] highlightedImage:nil title:@"路径规划"];
     
-    NSMutableArray *muArray = [NSMutableArray arrayWithObjects:squareItem,circleItem,triangleItem,crossItem, nil];
+    NSMutableArray *muArray = [NSMutableArray arrayWithObjects:squareItem,circleItem,triangleItem,crossItem,routeSearch ,nil];
     [muArray enumerateObjectsUsingBlock:^(UPStackMenuItem *obj, NSUInteger idx, BOOL *stop) {
         [obj setTitleColor:[UIColor blueColor]];
     }];
@@ -278,7 +282,8 @@ NS_ENUM(NSInteger, LocationType){
         
         __weak ViewController *weakSelf = self;
         _popover.didDismissHandler = ^{
-            [offlineMapViewController.view removeFromSuperview];
+//            [offlineMapViewController.view removeFromSuperview];
+            [offlineMapViewController dismissViewControllerAnimated:YES completion:nil];
             weakSelf.popContainerView.layer.cornerRadius = 0;
             weakSelf.popContainerView.hidden = YES;
             [weakSelf.view addSubview:weakSelf.popContainerView];
@@ -334,6 +339,28 @@ NS_ENUM(NSInteger, LocationType){
             [weakSelf.view addConstraints:weakSelf.arrayConstraints];
         };
     }
+    
+    if ([item.title isEqualToString:@"路径规划"]) {
+        UIStoryboard *main = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        RouteSearchViewController *routeSearchViewController = [main instantiateViewControllerWithIdentifier:@"RouteSearchViewController"];
+        routeSearchViewController.view.frame = CGRectMake(0, 0, 200, 150);
+        
+        [self addChildViewController:routeSearchViewController];
+        [_popContainerView addSubview:routeSearchViewController.view];
+        
+        [_popover showAtView:item withContentView:_popContainerView inView:self.view];
+        
+        __weak ViewController *weakSelf = self;
+        _popover.didDismissHandler = ^{
+            [routeSearchViewController.view removeFromSuperview];
+            [routeSearchViewController removeFromParentViewController];
+            
+            weakSelf.popContainerView.layer.cornerRadius = 0;
+            weakSelf.popContainerView.hidden = YES;
+            [weakSelf.view addSubview:weakSelf.popContainerView];
+            [weakSelf.view addConstraints:weakSelf.arrayConstraints];
+        };
+    }
 }
 
 #pragma mark - OffLineMap Delegate
@@ -364,6 +391,26 @@ NS_ENUM(NSInteger, LocationType){
     switch (type) {
         case TYPE_OFFLINE_UPDATE:{//state号城市正在下载或更新
             BMKOLUpdateElement *updateInfo = [_offlineMap getUpdateInfo:state];
+            
+            
+            NSLog(@"城市名：%@,下载比例:%d",updateInfo.cityName,updateInfo.ratio);
+            NSDictionary *dict = nil;
+            
+            if (updateInfo) {
+                dict = @{updateInfo.cityName : @"cityName",
+                                       @"cityID" : [NSNumber numberWithInt:updateInfo.cityID],
+                                       @"size" : [NSNumber numberWithInt:updateInfo.size],
+                                       @"serversize" : [NSNumber numberWithInt:updateInfo.serversize],
+                                       @"ratio" : ([NSNumber numberWithInt:updateInfo.ratio] ? [NSNumber numberWithInt:updateInfo.ratio] : 0),
+                                       @"status" : [NSNumber numberWithInt:updateInfo.status]
+                                       };
+            }else{
+                NSLog(@"数据已被移除");
+                return;
+            }
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"CityListCell" object:nil userInfo:dict];
+            
         }break;
         case TYPE_OFFLINE_NEWVER:{
             BMKOLUpdateElement *updateInfo = [_offlineMap getUpdateInfo:state];
@@ -393,6 +440,24 @@ NS_ENUM(NSInteger, LocationType){
     return [NSArray arrayWithObjects:[_offlineMap getHotCityList],[_offlineMap getOfflineCityList], nil];
 }
 
+-(BOOL)startDownloadWithId:(int)cityId{
+    return [_offlineMap start:cityId];
+}
+
+-(BOOL)removeItemWithCityId:(int)cityId{
+    return [_offlineMap remove:cityId];
+}
+
+-(BOOL)pasuseDownLoadWithId:(int)cityId{
+    return [_offlineMap pause:cityId];
+}
+
+-(NSDictionary *)GetUpdateInfoWithId:(int)cityId{
+    BMKOLUpdateElement *element = [_offlineMap getUpdateInfo:cityId];
+    return @{@"ratio" : [NSNumber numberWithInt:element.ratio]
+             };
+}
+
 #pragma mark - MapView Delegate
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -402,6 +467,7 @@ NS_ENUM(NSInteger, LocationType){
     _poiSearch.delegate = self;
     _geoSearch.delegate = self;
     _offlineMap.delegate = self;
+    _routeSearch.delegate = self;
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
@@ -411,6 +477,7 @@ NS_ENUM(NSInteger, LocationType){
     _poiSearch.delegate = nil;
     _geoSearch.delegate = nil;
     _offlineMap.delegate = nil;
+    _routeSearch.delegate = nil;
 }
 
 -(void)mapViewDidFinishLoading:(BMKMapView *)mapView{
@@ -436,7 +503,10 @@ NS_ENUM(NSInteger, LocationType){
  */
 -(BMKAnnotationView *)mapView:(BMKMapView *)mapView viewForAnnotation:(id<BMKAnnotation>)annotation{
     
-    
+    //Route
+    if ([annotation isKindOfClass:[RouteAnnotation class]]) {
+        return [self getRouteAnnotationView:mapView viewForAnnotation:(RouteAnnotation*)annotation];
+    }
     
     //point
     if (annotation == _overlayPointAnnotation) {
@@ -665,6 +735,86 @@ NS_ENUM(NSInteger, LocationType){
         }
     };
 }
+
+#pragma mark - RouteSearch Delegate
+
+- (BMKAnnotationView*)getRouteAnnotationView:routeView viewForAnnotation:(RouteAnnotation*)annotation{
+    BMKAnnotationView *view = nil;
+    switch (annotation.type) {
+        case StartPoint:{
+            view = [_mapView dequeueReusableAnnotationViewWithIdentifier:@"start_note"];
+            if (!view) {
+                view = [[BMKAnnotationView alloc]initWithAnnotation:annotation reuseIdentifier:@"star_note"];
+                view.image = [UIImage imageWithContentsOfFile:[OptionPublic getFilepathWithName:@"images/icon_nav_start.png" WithBundlePath:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"mapapi.bundle"]]];
+                view.centerOffset = CGPointMake(0, -(view.frame.size.height * 0.5));
+                view.canShowCallout = YES;
+            }
+            view.annotation = annotation;
+        }break;
+        case EndPoint:{
+            view = [_mapView dequeueReusableAnnotationViewWithIdentifier:@"end_note"];
+            if (!view) {
+                view = [[BMKAnnotationView alloc]initWithAnnotation:annotation reuseIdentifier:@"end_note"];
+                view.image = [UIImage imageWithContentsOfFile:[OptionPublic getFilepathWithName:@"images/icon_nav_end.png" WithBundlePath:[[[NSBundle mainBundle]resourcePath] stringByAppendingPathComponent:@"mapapi.bundle"]]];
+                view.centerOffset = CGPointMake(0, -(view.frame.size.height * 0.5));
+                view.canShowCallout = YES;
+            }
+            view.annotation = annotation;
+        }break;
+        case FashionBus:{
+            view = [_mapView dequeueReusableAnnotationViewWithIdentifier:@"bus_note"];
+            if (!view) {
+                view = [[BMKAnnotationView alloc]initWithAnnotation:annotation reuseIdentifier:@"bus_note"];
+                view.image = [UIImage imageWithContentsOfFile:[OptionPublic getFilepathWithName:@"images/icon_nav_bus.png" WithBundlePath:[[[NSBundle mainBundle]resourcePath] stringByAppendingPathComponent:@"mapapi.bundle"]]];
+                view.centerOffset = CGPointMake(0, -(view.frame.size.height * 0.5));
+                view.canShowCallout = YES;
+            }
+            view.annotation = annotation;
+        }break;
+        case FashionMetro:{
+            view = [_mapView dequeueReusableAnnotationViewWithIdentifier:@"rail_note"];
+            if (!view) {
+                view = [[BMKAnnotationView alloc]initWithAnnotation:annotation reuseIdentifier:@"rail_note"];
+                view.image = [UIImage imageWithContentsOfFile:[OptionPublic getFilepathWithName:@"images/icon_nav_rail.png" WithBundlePath:[[[NSBundle mainBundle]resourcePath] stringByAppendingPathComponent:@"mapapi.bundle"]]];
+                view.centerOffset = CGPointMake(0, -(view.frame.size.height*0.5));
+                view.canShowCallout = YES;
+            }
+        }break;
+        case FashionCar:{
+            view = [_mapView dequeueReusableAnnotationViewWithIdentifier:@"route_note"];
+            if (!view) {
+                view = [[BMKAnnotationView alloc]initWithAnnotation:annotation reuseIdentifier:@"route_note"];
+                view.canShowCallout = YES;
+            }else{
+                [view setNeedsDisplay];
+            }
+            
+            UIImage *image = [UIImage imageWithContentsOfFile:[OptionPublic getFilepathWithName:@"images/icon_nav_waypoint.png" WithBundlePath:[[[NSBundle mainBundle]resourcePath] stringByAppendingPathComponent:@"route_note"]]];
+            view.image = image;
+            view.annotation = annotation;
+        }break;
+        case PathWay:{
+            view = [_mapView dequeueReusableAnnotationViewWithIdentifier:@"waypoint_note"];
+            if (!view) {
+                view = [[BMKAnnotationView alloc]initWithAnnotation:annotation reuseIdentifier:@"waypoint_note"];
+                view.canShowCallout = YES;
+            }else{
+                [view setNeedsDisplay];
+            }
+            
+            UIImage *image = [UIImage imageWithContentsOfFile:[OptionPublic getFilepathWithName:@"images/icon_nav_waypoint.png" WithBundlePath:[[[NSBundle mainBundle]resourcePath] stringByAppendingPathComponent:@"mapapi.bundle"]]];
+            view.image = [image];
+        }break;
+        default:
+            break;
+    }
+    return view;
+}
+
+-(void)onGetDrivingRouteResult:(BMKRouteSearch *)searcher result:(BMKDrivingRouteResult *)result errorCode:(BMKSearchErrorCode)error{
+    
+}
+
 
 #pragma mark - Overlays And Animates
 
@@ -1135,6 +1285,10 @@ NS_ENUM(NSInteger, LocationType){
     }
 }
 
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    NSLog(@"asd");
+}
+
 -(void)dealloc{
     
 }
@@ -1196,12 +1350,12 @@ NS_ENUM(NSInteger, LocationType){
 
 - (IBAction)actionButtonChickCityList:(UIButton *)sender {
     UIStoryboard *main = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
-    CityListViewConttoller *cityListController = [main instantiateViewControllerWithIdentifier:@"CityListViewConttoller"];
+    CityListViewContoller *cityListController = [main instantiateViewControllerWithIdentifier:@"CityListViewContoller"];
     cityListController.view.frame = CGRectMake(0, 0, 200, 150);
     cityListController.delegate = _controller;
     
-    [self.view addSubview:cityListController.view];
-    
+    [_controller addChildViewController:cityListController];
+        [self.view.superview addSubview:cityListController.view];
 }
 
 -(void)dealloc{
@@ -1218,9 +1372,15 @@ NS_ENUM(NSInteger, LocationType){
 -(NSArray *)getCityList;
 //移除某一对象
 -(BOOL)removeItemWithCityId:(int)cityId;
+//开始下载
+-(BOOL)startDownloadWithId:(int)cityId;
+//暂停下载
+-(BOOL)pasuseDownLoadWithId:(int)cityId;
+
+-(NSDictionary *)GetUpdateInfoWithId:(int)cityId;
 @end
 
-@interface CityListViewConttoller ()<UITableViewDelegate,UITableViewDataSource>
+@interface CityListViewContoller ()<UITableViewDelegate,UITableViewDataSource>
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *cityListSegmentedControl;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -1229,11 +1389,35 @@ NS_ENUM(NSInteger, LocationType){
 
 @end
 
-@implementation CityListViewConttoller
+@implementation CityListViewContoller
+
+-(id)initWithCoder:(NSCoder *)aDecoder{
+    if (self = [super initWithCoder:aDecoder]) {
+        return self;
+    }
+    return nil;
+}
+
+-(instancetype)init{
+    if (self = [super init]) {
+        return self;
+    }
+    return nil;
+}
+
+-(instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
+    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+        return self;
+    }
+    return nil;
+}
 
 -(void)viewDidLoad{
     [super viewDidLoad];
-    
+    if (!_tableView.delegate && !_tableView.dataSource) {
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+    }
 }
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -1258,11 +1442,6 @@ NS_ENUM(NSInteger, LocationType){
         _arrayData = [NSMutableArray arrayWithObjects:arrayHotCity,arrayCityList, nil];
     }
     
-}
-
-
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-    [self.view removeFromSuperview];
 }
 
 #pragma mark - TableView Delegate
@@ -1294,11 +1473,13 @@ NS_ENUM(NSInteger, LocationType){
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     NSString *cellStr = @"Cell";
-    CityListViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellStr];
-    if (!cell) {
-        
-        cell = [[NSBundle mainBundle]loadNibNamed:@"CityListViewCell" owner:nil options:nil][0];
-    }
+//    CityListViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellStr];
+//    if (!cell) {
+//        NSArray *array = [[NSBundle mainBundle]loadNibNamed:@"CityListViewCell" owner:nil options:nil];
+//        cell = array[0];
+//    }
+    CityListViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"CityListViewCell" owner:nil options:nil][0];
+    
     return cell;
 }
 
@@ -1306,7 +1487,22 @@ NS_ENUM(NSInteger, LocationType){
     if ([cell isKindOfClass:[CityListViewCell class]]) {
         ((CityListViewCell *)cell).labelCity.text = ((BMKOLSearchRecord *)_arrayData[indexPath.section][indexPath.row]).cityName;
         ((CityListViewCell *)cell).labelId.text = [NSString stringWithFormat:@"%d",((BMKOLSearchRecord *)_arrayData[indexPath.section][indexPath.row]).cityID];
+        ((CityListViewCell *)cell).buttonDownload.tag = [((CityListViewCell *)cell).labelId.text intValue];
+        ((CityListViewCell *)cell).buttonPause.tag = [((CityListViewCell *)cell).labelId.text intValue] + 10000;
         
+        NSDictionary *dict = [_delegate GetUpdateInfoWithId:[((CityListViewCell *)cell).labelId.text intValue]];
+        
+        if (dict) {
+            ((CityListViewCell *)cell).labelPercent.text = [NSString stringWithFormat:@"%d%%",[(NSNumber *)dict[@"ratio"] intValue]];
+            ((CityListViewCell *)cell).precessView.progress = [(NSNumber *)dict[@"ratio"] intValue]/100.0;
+        }
+        
+        ((CityListViewCell *)cell).GetCellInfo =^(int cityId){
+            [_delegate startDownloadWithId:cityId];
+        };
+        ((CityListViewCell *)cell).PauseDownLoad = ^(int cityId){
+            return [_delegate pasuseDownLoadWithId:cityId];
+        };
     }
 }
 
@@ -1314,8 +1510,65 @@ NS_ENUM(NSInteger, LocationType){
     return section == 0 ? @"热门城市" : @"城市列表";
 }
 
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+}
+
+-(void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath{
+
+}
+
 -(void)dealloc{
     
+}
+
+@end
+
+/**
+ *  RouteSearchViewController
+ */
+@interface RouteSearchViewController ()
+
+@end
+
+@implementation RouteSearchViewController
+
+-(void)viewDidLoad{
+    [super viewDidLoad];
+}
+
+- (IBAction)actionButtonChangeFashion:(UIButton *)sender {
+    switch (sender.tag - 1401) {
+        case FashionBus:
+            
+            break;
+        case FashionCar:
+            
+            break;
+        case FashionWalk:
+            
+            break;
+        default:
+            break;
+    }
+}
+
+
+-(void)dealloc{
+    
+}
+
+@end
+
+
+
+
+
+
+@implementation HitTestView
+
+-(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event{
+    return self;
 }
 
 @end

@@ -14,13 +14,13 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="进度:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ziM-ZW-zkR">
-                        <rect key="frame" x="8" y="23" width="30" height="16"/>
+                        <rect key="frame" x="2" y="23" width="30" height="16"/>
                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progressViewStyle="bar" progress="1" translatesAutoresizingMaskIntoConstraints="NO" id="bjz-dG-rJe">
-                        <rect key="frame" x="43" y="30" width="113" height="3"/>
+                        <rect key="frame" x="37" y="30" width="119" height="3"/>
                     </progressView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100%" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2dI-bi-s5q">
                         <rect key="frame" x="161" y="23" width="36" height="16"/>
@@ -28,49 +28,46 @@
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="省市:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hAC-hb-Ssm">
-                        <rect key="frame" x="8" y="3" width="30" height="16"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="省市:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hAC-hb-Ssm">
+                        <rect key="frame" x="2" y="3" width="30" height="16"/>
                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" tag="1021" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="上海" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3V7-Fh-p3s">
-                        <rect key="frame" x="43" y="3" width="26" height="16"/>
+                    <label opaque="NO" userInteractionEnabled="NO" tag="1021" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="上海市" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3V7-Fh-p3s">
+                        <rect key="frame" x="37" y="4" width="38" height="15"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="38" id="6n6-BM-ptB"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="ID:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kmg-rM-SYC">
+                        <rect key="frame" x="83" y="3" width="17" height="16"/>
                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ID:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kmg-rM-SYC">
-                        <rect key="frame" x="79" y="3" width="17" height="16"/>
+                    <label opaque="NO" userInteractionEnabled="NO" tag="1022" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="123" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="924-69-6C1">
+                        <rect key="frame" x="105" y="3" width="23" height="16"/>
                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" tag="1022" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="123" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="924-69-6C1">
-                        <rect key="frame" x="101" y="3" width="23" height="16"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                        <nil key="highlightedColor"/>
-                    </label>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hnU-fd-DrC">
-                        <rect key="frame" x="129" y="-3" width="30" height="28"/>
+                    <button opaque="NO" tag="1031" contentMode="scaleToFill" horizontalHuggingPriority="249" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hnU-fd-DrC">
+                        <rect key="frame" x="136" y="-3" width="30" height="28"/>
                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                         <state key="normal" title="下载">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
-                        <connections>
-                            <action selector="actionButtonDownload:" destination="Ohw-g0-vDu" eventType="touchUpInside" id="rKf-Qb-CcV"/>
-                        </connections>
                     </button>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6HX-Xm-xYF">
-                        <rect key="frame" x="164" y="-3" width="30" height="28"/>
+                    <button opaque="NO" tag="1032" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6HX-Xm-xYF">
+                        <rect key="frame" x="171" y="-3" width="29" height="28"/>
                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                         <state key="normal" title="暂停">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
-                        <connections>
-                            <action selector="actionButtonPause:" destination="Ohw-g0-vDu" eventType="touchUpInside" id="Y2G-mw-y7i"/>
-                        </connections>
                     </button>
                 </subviews>
                 <constraints>
@@ -84,23 +81,27 @@
                     <constraint firstItem="3V7-Fh-p3s" firstAttribute="leading" secondItem="hAC-hb-Ssm" secondAttribute="trailing" constant="5" id="Rxd-KY-0yt"/>
                     <constraint firstItem="2dI-bi-s5q" firstAttribute="leading" secondItem="bjz-dG-rJe" secondAttribute="trailing" constant="5" id="Vsh-ii-yfi"/>
                     <constraint firstItem="hAC-hb-Ssm" firstAttribute="centerY" secondItem="3V7-Fh-p3s" secondAttribute="centerY" id="ayd-SF-lyF"/>
-                    <constraint firstItem="ziM-ZW-zkR" firstAttribute="leading" secondItem="rNf-Sn-aHP" secondAttribute="leadingMargin" id="bOp-ms-MKA"/>
-                    <constraint firstItem="hnU-fd-DrC" firstAttribute="leading" secondItem="924-69-6C1" secondAttribute="trailing" constant="5" id="dmc-ck-eqg"/>
+                    <constraint firstItem="ziM-ZW-zkR" firstAttribute="leading" secondItem="rNf-Sn-aHP" secondAttribute="leading" constant="2" id="bOp-ms-MKA"/>
+                    <constraint firstItem="hnU-fd-DrC" firstAttribute="leading" secondItem="924-69-6C1" secondAttribute="trailing" constant="8" id="dmc-ck-eqg"/>
                     <constraint firstItem="bjz-dG-rJe" firstAttribute="leading" secondItem="ziM-ZW-zkR" secondAttribute="trailing" constant="5" id="g5X-rn-0gH"/>
-                    <constraint firstItem="hAC-hb-Ssm" firstAttribute="leading" secondItem="rNf-Sn-aHP" secondAttribute="leadingMargin" id="ggU-Wy-Xnt"/>
-                    <constraint firstItem="kmg-rM-SYC" firstAttribute="leading" secondItem="3V7-Fh-p3s" secondAttribute="trailing" constant="10" id="gqN-Bm-bvF"/>
+                    <constraint firstItem="hAC-hb-Ssm" firstAttribute="leading" secondItem="rNf-Sn-aHP" secondAttribute="leading" constant="2" id="ggU-Wy-Xnt"/>
+                    <constraint firstItem="kmg-rM-SYC" firstAttribute="leading" secondItem="3V7-Fh-p3s" secondAttribute="trailing" constant="8" id="gqN-Bm-bvF"/>
                     <constraint firstItem="bjz-dG-rJe" firstAttribute="centerY" secondItem="ziM-ZW-zkR" secondAttribute="centerY" id="m8R-Vn-DM1"/>
                     <constraint firstItem="kmg-rM-SYC" firstAttribute="centerY" secondItem="924-69-6C1" secondAttribute="centerY" id="rBs-Ee-02T"/>
                     <constraint firstItem="hnU-fd-DrC" firstAttribute="centerY" secondItem="kmg-rM-SYC" secondAttribute="centerY" id="tZe-8i-ZiK"/>
                     <constraint firstItem="ziM-ZW-zkR" firstAttribute="centerY" secondItem="2dI-bi-s5q" secondAttribute="centerY" id="yfy-b6-jaq"/>
+                    <constraint firstItem="6HX-Xm-xYF" firstAttribute="right" secondItem="rNf-Sn-aHP" secondAttribute="right" id="yxN-rG-S5Y"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
+                <outlet property="buttonDownload" destination="hnU-fd-DrC" id="ns6-bH-4W5"/>
+                <outlet property="buttonPause" destination="6HX-Xm-xYF" id="Bnv-OQ-qKM"/>
                 <outlet property="labelCity" destination="3V7-Fh-p3s" id="89R-NZ-KoT"/>
                 <outlet property="labelId" destination="924-69-6C1" id="Pyw-PJ-YNR"/>
                 <outlet property="labelPercent" destination="2dI-bi-s5q" id="AH4-08-VUu"/>
                 <outlet property="precessView" destination="bjz-dG-rJe" id="xsn-Wx-oi3"/>
             </connections>
+            <point key="canvasLocation" x="36" y="543"/>
         </tableViewCell>
     </objects>
 </document>

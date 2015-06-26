@@ -14,6 +14,8 @@
 
 -(UIImage *)imageWithColor:(UIColor *)color;
 
+-(UIImage *)imageRotatedByDegrees:(CGFloat)degrees;
+
 @end
 
 @interface UIColor (ConvertToRGBA)
@@ -26,4 +28,5 @@
 
 +(NSString *)getDataSizeString:(int)nSize;
 
++(NSString *) getFilepathWithName:(NSString *)filename WithBundlePath:(NSString *) bundlepath;
 @end

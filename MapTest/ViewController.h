@@ -7,6 +7,23 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <BaiduMapAPI/BMapKit.h>
+
+typedef NS_ENUM(NSUInteger, ReachFashion) {
+    StartPoint,
+    EndPoint,
+    FashionBus,
+    FashionMetro,
+    FashionCar,
+    PathWay
+};
+
+@interface RouteAnnotation : BMKPointAnnotation
+
+@property (assign,nonatomic) ReachFashion type; ///<0:起点 1：终点 2：公交 3：地铁 4:驾乘 5:途经点
+@property (assign,nonatomic) int degree;
+
+@end
 
 @interface ViewController : UIViewController
 
@@ -57,8 +74,29 @@ typedef NS_ENUM(NSUInteger, GeoType) {
 @end
 
 @protocol CityListDelegate;
-@interface CityListViewConttoller : UIViewController
+@interface CityListViewContoller : UIViewController
 
 @property (assign,nonatomic) id<CityListDelegate> delegate;
+
+@end
+
+/**
+ *  fourth viewcotnroller - Route Search
+ */
+
+@interface RouteSearchViewController : UIViewController
+
+@property (weak, nonatomic) IBOutlet UITextField *textFieldStartCity;
+@property (weak, nonatomic) IBOutlet UITextField *textFieldStartPlace;
+@property (weak, nonatomic) IBOutlet UITextField *textFieldEndCity;
+@property (weak, nonatomic) IBOutlet UITextField *textFieldEndPlace;
+
+@property (assign,nonatomic) ReachFashion reachFashion;
+
+@end
+
+
+
+@interface HitTestView : UIView
 
 @end

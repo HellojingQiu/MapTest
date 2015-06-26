@@ -10,26 +10,52 @@
 
 @interface CityListViewCell ()
 
-@property (weak, nonatomic) IBOutlet UIProgressView *precessView;
-@property (weak, nonatomic) IBOutlet UILabel *labelPercent;
-
-
 @end
 
 @implementation CityListViewCell
 
 - (void)awakeFromNib {
     // Initialization code
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(updateView:) name:@"CityListCell" object:nil];
+    
+    [self.buttonDownload addTarget:self action:@selector(actionButtonDownload:) forControlEvents:UIControlEventTouchUpInside];
+    [self.buttonPause addTarget:self action:@selector(actionButtonPause:) forControlEvents:UIControlEventTouchUpInside];
 }
 
-- (IBAction)actionButtonDownload:(id)sender {
+- (IBAction)actionButtonDownload:(UIButton *)sender {
+    if (sender.tag == self.buttonDownload.tag) {
+        self.precessView.progress = 0.5;
+        self.labelPercent.text = @"0%";
+        self.GetCellInfo([_labelId.text intValue]);
+    }
+}
+
+- (IBAction)actionButtonPause:(UIButton *)sender {
+    if (sender.tag == self.buttonPause.tag) {
+        self.PauseDownLoad([_labelId.text intValue]);
+    }
+}
+
+-(void)updateView:(NSNotification *)notification{
+    if ([notification.name isEqualToString:@"CityListCell"]) {
+        NSDictionary *dict = notification.userInfo;
+        
+//        @"cityID",
+//        @"size",
+//        @"serversize",
+//        @"ratio",
+//        @"status"
+        NSLog(@"%d - %d",[(NSNumber *)dict[@"cityID"] intValue],self.buttonDownload.tag);
+        
+        if ([(NSNumber *)dict[@"cityID"] intValue] == self.buttonDownload.tag) {
+            
+            self.labelPercent.text = [NSString stringWithFormat:@"%d%%",[(NSNumber *)dict[@"ratio"] intValue]];
+            [self.precessView setProgress:[(NSNumber *)dict[@"ratio"] intValue]/100.0];
+        }
+        
+    }
     
 }
-
-- (IBAction)actionButtonPause:(id)sender {
-    
-}
-
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
@@ -37,4 +63,7 @@
     // Configure the view for the selected state
 }
 
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
 @end
